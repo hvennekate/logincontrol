@@ -29,3 +29,5 @@ HEADERS += \
     sessiontimelogger.h \
     timerange.h \
     weeklytimerange.h
+
+DBUS_ADAPTORS += ../org.hendrik.logintimer.xml

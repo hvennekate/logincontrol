@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QDBusMessage>
 #include <QDBusConnection>
+#include "logintimer_adaptor.h"
 
 quint32 SessionManager::getSecsSinceLastCall()
 {
@@ -11,7 +12,8 @@ quint32 SessionManager::getSecsSinceLastCall()
 
 SessionManager::SessionManager(LoginTimesConfig &&config, QObject *parent)
   : QObject(parent),
-    config(std::move(config))
+    config(std::move(config)),
+    adaptor(new LogintimerAdaptor(this))
 {
   timer.start();
 }

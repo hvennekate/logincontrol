@@ -5,6 +5,7 @@
 #include <QObject>
 #include <logintimesconfig.h>
 #include <sessiontimelogger.h>
+#include "logintimer_adaptor.h"
 
 class SessionManager : public QObject
 {
@@ -13,6 +14,7 @@ class SessionManager : public QObject
   SessionTimeLogger logger;
   QElapsedTimer timer;
   quint32 getSecsSinceLastCall();
+  LogintimerAdaptor *adaptor;
 public:
   explicit SessionManager(LoginTimesConfig &&config , QObject *parent = nullptr);
 public slots:

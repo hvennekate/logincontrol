@@ -19,8 +19,8 @@ public:
   bool isLocked() const;
   QString getUserName() const;
 
-  static QVector<Session> allSessions();
-  static QVector<Session> allUnlockedSessions();
+  static QList<Session> allSessions();
+  static QList<Session> allUnlockedSessions();
 };
 
 const QDBusArgument& operator>>(const QDBusArgument& arg, Session &session);

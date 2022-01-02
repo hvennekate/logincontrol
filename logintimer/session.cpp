@@ -49,7 +49,7 @@ QString Session::getUserName() const {
   return userName;
 }
 
-QVector<Session> Session::allSessions() {
+QList<Session> Session::allSessions() {
   QDBusInterface loginManager("org.freedesktop.login1",
                               "/org/freedesktop/login1",
                               "org.freedesktop.login1.Manager",
@@ -58,7 +58,7 @@ QVector<Session> Session::allSessions() {
   const QDBusArgument inner = reply.value();
 
   inner.beginArray();
-  QVector<Session> result;
+  QList<Session> result;
   while (!inner.atEnd()) {
     Session session;
     inner >> session;
@@ -68,9 +68,12 @@ QVector<Session> Session::allSessions() {
   return result;
 }
 
-QVector<Session> Session::allUnlockedSessions()
+QList<Session> Session::allUnlockedSessions()
 {
   auto sessions = allSessions();
-  std::remove_if(sessions.begin(), sessions.end(), std::bind(&Session::isLocked, std::placeholders::_1));
-  return sessions;
+  QList<Session> unlockedSessions;
+  std::copy_if(sessions.begin(), sessions.end(),
+               std::back_inserter(unlockedSessions),
+               [] (const Session &session) { return !session.isLocked(); });
+  return unlockedSessions;
 }
