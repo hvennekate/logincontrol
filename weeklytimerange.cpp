@@ -17,11 +17,12 @@ bool WeeklyTimeRange::isValid() const {
       && dayOfWeek >= 1 && dayOfWeek <= 7;
 }
 
-bool WeeklyTimeRange::contains(const QDateTime &dateTime) const {
+quint32 WeeklyTimeRange::remainingSecs(const QDateTime &dateTime) const {
   qDebug() << "testing" << dateTime << dayOfWeek << start << end;
+  if (dateTime.date().dayOfWeek() != dayOfWeek) return 0;
   auto time = dateTime.time();
-  return dateTime.date().dayOfWeek() == dayOfWeek
-      && time >= start && time <= end;
+  if (time < start) return 0;
+  return qMax(0, time.secsTo(end));
 }
 
 WeeklyTimeRange *WeeklyTimeRange::fromString(const QString &input) {

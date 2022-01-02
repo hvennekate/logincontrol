@@ -16,9 +16,11 @@ public:
   friend QDebug operator<<(QDebug debug, const Session &session);
 
   void lock() const;
+  bool isLocked() const;
   QString getUserName() const;
 
   static QVector<Session> allSessions();
+  static QVector<Session> allUnlockedSessions();
 };
 
 const QDBusArgument& operator>>(const QDBusArgument& arg, Session &session);

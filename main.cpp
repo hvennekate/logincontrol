@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
         qInfo() << "User" << qgetenv("PAM_USER") << "is not config user" << config.getUserName();
         return 0;
       } else {
-        return config.allowLogin(QDateTime::currentDateTime()) ? 0 : 1;
+        return config.secondsLeft(QDateTime::currentDateTime(), SessionTimeLogger().getSecondsToday(config.getUserName())) ? 0 : 1;
       }
   }
 }

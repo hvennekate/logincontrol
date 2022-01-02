@@ -8,7 +8,7 @@
 class TimeRange
 {
 public:
-  virtual bool contains(const QDateTime &dateTime) const = 0;
+  virtual quint32 remainingSecs(const QDateTime &dateTime) const = 0;
   virtual bool isValid() const = 0;
   virtual ~TimeRange();
 };

@@ -10,15 +10,16 @@
 class LoginTimesConfig
 {
   QString userName;
+  qint32 maxSecsPerDay;
   QList<TimeRange*> timeRanges;
 public:
   LoginTimesConfig();
-  LoginTimesConfig(const QString &user, QList<TimeRange *> ranges);
+  LoginTimesConfig(const QString &user, const qint32 maxSecsPerDay, QList<TimeRange *> ranges);
   LoginTimesConfig(LoginTimesConfig &&other);
   ~LoginTimesConfig();
   bool isValid() const;
   QString getUserName() const;
-  bool allowLogin(const QDateTime &time);
+  quint32 secondsLeft(const QDateTime &time, const quint32 &secsToday);
 
   static LoginTimesConfig fromLines(const QStringList &lines);
 };

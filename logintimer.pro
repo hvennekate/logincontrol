@@ -1,7 +1,7 @@
 QT -= gui
 QT += dbus sql
 
-CONFIG += c++11 console
+CONFIG += c++20 console
 CONFIG -= app_bundle
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -13,6 +13,7 @@ SOURCES += \
         main.cpp \
         session.cpp \
         sessionmanager.cpp \
+        sessiontimelogger.cpp \
         timerange.cpp \
         weeklytimerange.cpp
 
@@ -25,5 +26,6 @@ HEADERS += \
     logintimesconfig.h \
     session.h \
     sessionmanager.h \
+    sessiontimelogger.h \
     timerange.h \
     weeklytimerange.h

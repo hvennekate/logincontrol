@@ -12,6 +12,7 @@ const QDBusArgument& operator>>(const QDBusArgument& arg, Session &session) {
       >> session.seatId
       >> session.objectPath;
   arg.endStructure();
+
   return arg;
 }
 
@@ -31,6 +32,17 @@ void Session::lock() const {
                                 "org.freedesktop.login1.Session",
                                 QDBusConnection::systemBus());
   loginManager.call("Lock");
+}
+
+bool Session::isLocked() const
+{
+  QDBusInterface dbusSession("org.freedesktop.login1",
+                             objectPath.path(),
+                             "org.freedesktop.login1.Session",
+                             QDBusConnection::systemBus());
+  auto locked = dbusSession.property("LockedHint").toBool();
+  qDebug() << "checking session" << *this << locked;
+  return locked;
 }
 
 QString Session::getUserName() const {
@@ -54,4 +66,11 @@ QVector<Session> Session::allSessions() {
   }
   inner.endArray();
   return result;
+}
+
+QVector<Session> Session::allUnlockedSessions()
+{
+  auto sessions = allSessions();
+  std::remove_if(sessions.begin(), sessions.end(), std::bind(&Session::isLocked, std::placeholders::_1));
+  return sessions;
 }

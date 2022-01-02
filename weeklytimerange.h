@@ -15,7 +15,7 @@ public:
   WeeklyTimeRange();
   WeeklyTimeRange(const Qt::DayOfWeek &dow, const QTime &begin, const QTime &end);
   bool isValid() const override;
-  bool contains(const QDateTime &dateTime) const override;
+  quint32 remainingSecs(const QDateTime &dateTime) const override;
   static WeeklyTimeRange *fromString(const QString &input);
 };
 
