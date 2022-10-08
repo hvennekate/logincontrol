@@ -77,3 +77,11 @@ QList<Session> Session::allUnlockedSessions()
                [] (const Session &session) { return !session.isLocked(); });
   return unlockedSessions;
 }
+
+QSet<QString> Session::allLoggedInUsers()
+{
+  auto sessions = allUnlockedSessions();
+  QSet<QString> usernames;
+  for (auto session : sessions) usernames << session.getUserName();
+  return usernames;
+}

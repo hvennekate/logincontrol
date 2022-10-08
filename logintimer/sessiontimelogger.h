@@ -8,8 +8,8 @@ class SessionTimeLogger
   static void requireDB();
 public:
   SessionTimeLogger();
-  void log(const QString &username, quint32 secs);
-  quint32 getSecondsToday(const QString &username) const;
+  void log(const QString &username);
+  unsigned getMinutesToday(const QString &username) const;
 };
 
 #endif // SESSIONTIMELOGGER_H

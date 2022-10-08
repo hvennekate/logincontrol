@@ -3,22 +3,29 @@
 
 #include <QElapsedTimer>
 #include <QObject>
-#include <logintimesconfig.h>
-#include <sessiontimelogger.h>
+#include "sessiontimelogger.h"
 #include "logintimer_adaptor.h"
+#include "sessiontimebudget.h"
+#include "timeslotsfortoday.h"
+#include "userlist.h"
 
 class SessionManager : public QObject
 {
   Q_OBJECT
-  LoginTimesConfig config;
+  SessionTimeBudget budgets; // TODO abstraction for budget and time slots
+  TimeSlotsForToday timeSlots;
+  UserList userList;
   SessionTimeLogger logger;
   QElapsedTimer timer;
   quint32 getSecsSinceLastCall();
   LogintimerAdaptor *adaptor;
 public:
-  explicit SessionManager(LoginTimesConfig &&config , QObject *parent = nullptr);
+  explicit SessionManager(QObject *parent = nullptr);
+  unsigned minutesLeft(const QString &user) const;
 public slots:
   void checkSessions();
+private:
+  void sendRemainingMinutesMessage(const QString username, unsigned minutes) const;
 };
 
 #endif // SESSIONMANAGER_H

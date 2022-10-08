@@ -1,56 +1,66 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
-#include <logintimesconfig.h>
 #include <QTimer>
 #include <sessionmanager.h>
+#include <QSqlDatabase>
+
+void messageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: (%s:%u, %s) %s\n", context.file, context.line, context.function, localMsg.constData());
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: (%s:%u, %s) %s\n", context.file, context.line, context.function, localMsg.constData());
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: (%s:%u, %s) %s\n", context.file, context.line, context.function, localMsg.constData());
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: (%s:%u, %s) %s\n", context.file, context.line, context.function, localMsg.constData());
+        abort();
+      case QtInfoMsg:
+        fprintf(stderr, "Info: (%s:%u, %s) %s\n", context.file, context.line, context.function, localMsg.constData());
+    }
+}
 
 enum Mode {
   Daemon,
   Login
 };
 
-void runDaemon(LoginTimesConfig &&config) {
+void runDaemon() {
   auto timer = new QTimer(qApp);
   timer->setInterval(60 * 1000);
   timer->setTimerType(Qt::VeryCoarseTimer);
-  auto sessionManager = new SessionManager(std::move(config), qApp);
+  auto sessionManager = new SessionManager(qApp);
   timer->callOnTimeout(sessionManager, &SessionManager::checkSessions);
   timer->start();
 }
 
 int main(int argc, char **argv) {
+  qInstallMessageHandler(messageOutput);
   QCoreApplication app(argc, argv);
+
+  auto db = QSqlDatabase::addDatabase("QSQLITE3");
+  db.setDatabaseName("/var/log/logintimes");
+  db.open();
+
   auto arguments = app.arguments();
-  if (arguments.size() != 3
-      || ("daemon" != arguments[1] && "login" != arguments[1])) {
-    qInfo() << "Need to specify exactly: mode (login or daemon) and config file. Exiting.";
+  if (arguments.size() != 2 || ( "daemon" != arguments[1] && "login" != arguments[1])) {
+    qInfo() << "Need to specify exactly: mode (login or daemon). Exiting.";
     return 1;
   }
   Mode mode = "daemon" == arguments[1] ? Daemon : Login;
-  QStringList configLines;
-  QFile configFile(arguments.last());
-  if (!configFile.open(QIODevice::ReadOnly)) {
-    qInfo() << "Could not open file" << arguments.last();
-    return 3;
-  }
-  while (!configFile.atEnd()) configLines << configFile.readLine().trimmed();
-  auto config = LoginTimesConfig::fromLines(configLines);
-  if (!config.isValid()) {
-    qInfo() << "Configuration file not valid. Exiting.";
-    return 2;
-  }
 
   switch (mode) {
     case Daemon:
-      runDaemon(std::move(config));
+      runDaemon();
       return app.exec();
     case Login:
-      if (qgetenv("PAM_USER") != config.getUserName()) {
-        qInfo() << "User" << qgetenv("PAM_USER") << "is not config user" << config.getUserName();
-        return 0;
-      } else {
-        return config.secondsLeft(QDateTime::currentDateTime(), SessionTimeLogger().getSecondsToday(config.getUserName())) ? 0 : 1;
-      }
+      auto user = qgetenv("PAM_USER");
+      return SessionManager().minutesLeft(user) > 0 ? 0 : 1;
   }
 }
