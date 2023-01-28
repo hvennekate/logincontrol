@@ -51,7 +51,7 @@ void SessionManager::checkSessions() {
   }
 
   qDebug() << "Logging users:" << loggedInUsers;
-  for (auto user : loggedInUsers) logger.log(user);
+  for (auto user : relevantUsers) logger.log(user);
 }
 
 void SessionManager::sendRemainingMinutesMessage(const QString username, unsigned minutes) const
